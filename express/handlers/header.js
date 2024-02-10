@@ -1,10 +1,9 @@
 function setHeader(res, headerTitle, headerValue) {
   res.set(headerTitle, headerValue);
-  res.send('Header was set');
+  res.send(`Header with title "${headerTitle}" and value "${headerValue}" was set`);
 }
 
 function getHeader(req, headerTitle) {
-  console.log(req);
   return req.get(headerTitle);
 }
 
