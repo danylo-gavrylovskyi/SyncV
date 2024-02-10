@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>User Profile</title>
+	</head>
+	<body>
+		<h1>User Profile {{ user.id }}</h1>
+		<p>Fullname: {{ user.fullname }}</p>
+		<p>Email: {{ user.email }}</p>
+		<p>Password: {{ user.password }}</p>
+		<a href="{% url 'view_image' %}">View Static Image</a>
+		<a href="{% url 'users_list' %}">Back</a>
+	</body>
+</html>

@@ -1,0 +1,14 @@
+h1 List of users
+
+p Qty of users:
+    b= qty
+
+ul(style='font-size: 18px')
+    each user in users
+        li 
+            a(href=`/${user._id}`) 
+                span Fullname: #{user.fullname}
+                br
+                span Email: #{user.email} 
+                br
+                span Password: #{user.password}
