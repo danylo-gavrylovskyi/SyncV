@@ -1,0 +1,60 @@
+{
+  "API Documentation": {
+    "url": "http://localhost:3400",
+    "/users": [
+      { "method": "GET", "description": "Returns list of users." },
+      {
+        "method": "POST",
+        "description": "Creates new user.",
+        "fields": "fullname(required), email(required), password(required), isAdmin, birthDate",
+        "request body": {
+          "fullname": "example",
+          "email": "example@gmail.com",
+          "password": "example123"
+        }
+      }
+    ],
+    "/users/:id": [
+      {
+        "method": "GET",
+        "description": "Returns user with requested id.",
+        "example": "http://localhost:3400/users/65c553785f2a9dfb12cbde21",
+        "parameters": {
+          "id": "id of the user"
+        }
+      },
+      {
+        "method": "PUT",
+        "description": "Global user update.",
+        "example": "http://localhost:3400/users/65c553785f2a9dfb12cbde21",
+        "parameters": {
+          "id": "id of the user"
+        },
+        "request body": {
+          "fullname": "example",
+          "email": "example@gmail.com",
+          "password": "example123"
+        }
+      },
+      {
+        "method": "PATCH",
+        "description": "Small user update.",
+        "example": "http://localhost:3400/users/65c553785f2a9dfb12cbde21",
+        "parameters": {
+          "id": "id of the user"
+        },
+        "request body": {
+          "password": "exampleqwerty"
+        }
+      },
+      {
+        "method": "DELETE",
+        "description": "Deletes user with specified id.",
+        "example": "http://localhost:3400/users/65c553785f2a9dfb12cbde21",
+        "parameters": {
+          "id": "id of the user"
+        }
+      }
+    ]
+  }
+}

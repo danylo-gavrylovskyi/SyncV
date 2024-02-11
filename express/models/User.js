@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -14,7 +14,15 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-    }
+    },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+    },
+    birthDate: {
+      type: Date,
+      required: false,
+    },
   },
   { timestamps: true },
 );
