@@ -1,0 +1,74 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	padding: 5px;
+	box-sizing: border-box;
+	overflow-y: auto;
+}
+
+.chat {
+	background-color: #fff;
+	display: flex;
+	height: 100%;
+	width: 100%;
+	flex-direction: column;
+	border: 1px solid #87785f;
+	box-shadow: 3px 3px 5px #eee;
+}
+
+.chatForm {
+	box-shadow: none;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	padding: 0;
+	position: relative;
+	bottom: 2%;
+}
+.chatForm input {
+	margin: 0;
+	width: 80%;
+	height: 100%;
+	padding: 1%;
+}
+.chatForm button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	width: auto;
+	height: auto;
+	padding: 0;
+	margin-left: 2%;
+	border: 1px solid #87785f;
+	border-radius: 5px;
+	background-color: white;
+	transition: all 0.2s;
+	cursor: pointer;
+}
+
+.participants {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin-left: 2%;
+}
+
+.participant {
+	font-size: 12px;
+	text-align: center;
+	border-radius: 10px;
+	border: 1px solid orange;
+	padding: 3px 20px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+
+.delimeter {
+	height: 1px;
+	background-color: #eee;
+	margin: 2% 0;
+}

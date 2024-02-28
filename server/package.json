@@ -1,0 +1,18 @@
+{
+  "name": "syncv-server",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "mongoose": "^8.2.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.15",
+    "socket.io": "^4.4.1",
+    "uuid": "^8.3.2"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "nodemon": "nodemon server.js"
+  }
+}
