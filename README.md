@@ -4,7 +4,7 @@ SyncV is a real-time video synchronization and chat application that allows user
 
 ## Getting Started
 
-These instructions will help you set up and run the WatchTogether application on your local machine.
+These instructions will help you set up and run the SyncV application on your local machine.
 
 ### Starting the Server
 
@@ -240,3 +240,26 @@ Example:
 
 -  Opens when the "Invite Friends" button is clicked.
 -  Displays the room ID and provides a "Copy to Clipboard" button.
+
+## Application Screenshots
+
+### Home Page
+
+![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/b5a0c25b-7690-4eca-a626-e8b877e40e35)
+
+### Room Page
+
+![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/72f360be-3a6a-49b5-ba76-27579e0c8ad4)
+
+### Chat
+
+![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/7bc5bc33-0117-40c1-8607-72b3160a4547)
+
+### Change Video Modal
+
+![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/251afc15-aae3-4a11-b934-052657578d99)
+
+### Invite Friends Modal
+
+![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/5096ce5f-3493-470f-8286-edd2939482ae)
+
