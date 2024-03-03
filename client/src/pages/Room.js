@@ -47,6 +47,10 @@ export const Room = ({ currentUser }) => {
 		})();
 	}, []);
 
+	socket.on("connect_error", (error) => {
+		console.error("Socket connection error:", error.message);
+	});
+
 	socket.on("NEW_USER", () => {
 		fetchRoomData();
 	});
@@ -63,9 +67,12 @@ export const Room = ({ currentUser }) => {
 
 	socket.on("VIDEO_PAUSE", (data) => {
 		player.current.seekTo(data);
+		player.current.getInternalPlayer().pauseVideo();
 	});
 	socket.on("VIDEO_PLAY", (data) => {
 		setPlaying(true);
+		player.current.getInternalPlayer().playVideo();
+		console.log("video play was receive and now playing is ", playing);
 	});
 
 	const handlePause = () => {
@@ -75,6 +82,20 @@ export const Room = ({ currentUser }) => {
 			currTime: player.current.getCurrentTime(),
 		});
 	};
+	const handlePlay = () => {
+		try {
+			socket.emit("VIDEO_PLAY", {
+				event: "play",
+				roomId: room,
+				currTime: player.current.getCurrentTime(),
+			});
+		} catch (error) {
+			console.error("Error: ", error);
+		}
+
+		console.log("video play was emitted to server");
+	};
+
 	const setTheLink = (e) => {
 		e.preventDefault();
 		socket.emit("VIDEO_LOAD", { videoUrl: vidLink, roomId: room });
@@ -92,14 +113,6 @@ export const Room = ({ currentUser }) => {
 	};
 	const closeInviteModal = () => {
 		setInviteModalIsOpen(false);
-	};
-
-	const handlePlay = () => {
-		socket.emit("VIDEO_PLAY", {
-			event: "play",
-			roomId: room,
-			currTime: player.current.getCurrentTime(),
-		});
 	};
 
 	return (

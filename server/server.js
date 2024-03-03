@@ -28,9 +28,9 @@ const logFile = fs.createWriteStream("./logs/myLogFile.log", { flags: "a" });
 const logFileErrors = fs.createWriteStream("./logs/myLogFileErrors.log", { flags: "a" });
 
 const app = express();
+app.use(morgan("tiny", { stream: logFile }));
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(morgan("tiny", { stream: logFile }));
 app.use(
 	morgan("common", {
 		stream: logFileErrors,
@@ -57,6 +57,10 @@ io.on("connection", (socket) => {
 	socket.on("VIDEO_PAUSE", (data) => vidoPause(data, data.roomId, io));
 	socket.on("VIDEO_BUFFER", (data) => videoBuffer(data, data.roomId, socket));
 	socket.on("CREATE_MESSAGE", (data) => createMessage(data, io));
+
+	socket.on("error", (error) => {
+		console.error("Socket error:", error.message);
+	});
 });
 
 app.listen(PORT, () => {

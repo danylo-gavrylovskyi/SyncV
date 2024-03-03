@@ -31,7 +31,12 @@ const videoLoad = async (data, io) => {
 
 const videoPlay = async (io, roomId) => {
 	const room = await Room.findOne({ roomId });
-	io.to(roomId).emit("VIDEO_PLAY", room.currentVideo.currentTime);
+	console.log("video play was emmited for room ", roomId);
+	try {
+		io.to(roomId).emit("VIDEO_PLAY", room.currentVideo.currentTime);
+	} catch (error) {
+		console.error("Error: ", error);
+	}
 };
 
 const vidoPause = async (data, roomId, io) => {
