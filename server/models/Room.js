@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { UserSchema } = require("./User");
 
 const RoomSchema = new mongoose.Schema({
 	roomId: {
@@ -15,13 +16,8 @@ const RoomSchema = new mongoose.Schema({
 		default: null,
 	},
 	users: {
-		type: [
-			{
-				socketId: String,
-				displayName: String,
-			},
-		],
-		default: {},
+		type: [UserSchema],
+		default: [],
 	},
 	messages: {
 		type: [

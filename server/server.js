@@ -12,7 +12,7 @@ const {
 	joinRoom,
 } = require("./handlers/socket");
 const { originFunction } = require("./utils/originFunction.js");
-const routes = require("./routes/roomRoutes.js");
+const routes = require("./routes");
 
 const mongoose = require("./mongooseConnection");
 mongoose.set("strictQuery", false);
@@ -39,7 +39,8 @@ app.use(
 		},
 	})
 );
-app.use("/", routes);
+app.use("/", routes.roomRoutes);
+app.use("/users", routes.userRoutes);
 app.use(ErrorHandler);
 
 const io = require("socket.io")(8000, {
