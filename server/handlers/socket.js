@@ -1,24 +1,28 @@
 const Room = require("../models/Room").Room;
 
 const joinRoom = async ({ roomId, displayName, socket, io }) => {
-	const room = await Room.findOne({ roomId });
+	try {
+		const room = await getRoomData(roomId);
 
-	room.users.push({ socketId: socket.id, displayName });
-	await room.save();
+		room.users.push({ socketId: socket.id, displayName });
+		await Room.updateOne({ roomId }, { $set: { users: room.users } });
 
-	socket.join(roomId);
+		socket.join(roomId);
 
-	if (room.currentVideo) {
-		const videoData = {
-			videoUrl: room.currentVideo.videoUrl,
-			state: room.currentVideo.state,
-			currTime: room.currentVideo.currentTime,
-		};
-		socket.emit("SYNC", videoData);
+		if (room.currentVideo) {
+			const videoData = {
+				videoUrl: room.currentVideo.videoUrl,
+				state: room.currentVideo.state,
+				currTime: room.currentVideo.currentTime,
+			};
+			socket.emit("SYNC", videoData);
+		}
+
+		io.to(roomId).emit("NEW_USER");
+		socket.on("disconnect", () => disconnect(socket, roomId, io));
+	} catch (error) {
+		console.error("Error joining room:", error.message);
 	}
-
-	io.to(roomId).emit("NEW_USER");
-	socket.on("disconnect", () => disconnect(socket, roomId, io));
 };
 
 const videoLoad = async (data, io) => {
