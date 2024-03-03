@@ -1,265 +1,151 @@
-# SyncV App
+# Logging and Error Handling Strategies
 
-SyncV is a real-time video synchronization and chat application that allows users to watch videos together in sync.
+## Logging
 
-## Getting Started
+Logging is a critical aspect of understanding application behavior and diagnosing issues. In this project, I've implemented a comprehensive logging strategy using both the morgan middleware for HTTP request logging and a custom error logging mechanism.
 
-These instructions will help you set up and run the SyncV application on your local machine.
-
-### Starting the Server
-
-1. Open a terminal window.
-2. Clone project and navigate to the server directory of your project using the cd command:
-
-```bash
-git clone https://github.com/danylo-gavrylovskyi/SyncV.git
-cd path/to/your/server
-```
-
-3. Install the server dependencies:
-
-```bash
-npm install
-```
-
-4. Start the server:
-
-```bash
-npm run start
-```
-
-This will run server, and it will listen for incoming connections on the `3400` port
-
-### Starting the Client
-
-1. Open a terminal window.
-2. Navigate to the server directory of your project using the cd command:
-
-```bash
-cd path/to/your/client
-```
-
-3. Install the client dependencies:
-
-```bash
-npm install
-```
-
-4. Start the client:
-
-```bash
-npm run start
-```
-
-This will run your React app, and it will be accessible in your web browser. Make sure that both the server and client are running concurrently for the application to work properly. If you encounter any issues or error messages during this process, check the terminal outputs for more information on what might be causing the problem.
-
-## Server
-
-### Technologies Used
-
--  Node.js
--  Express.js
--  Socket.io
--  MongoDB (Mongoose)
-
-### File Structure
-
-```plaintext
-server
-│   server.js
-│   package.json
-│   mongooseConnection.js
-├───logs
-├───configs
-│       mongoConnection.js
-│       port.js
-├───handlers
-│       socket.js
-├───middlewares
-│       error-handler.js
-├───models
-│       Room.js
-├───routes
-│       roomRoutes.js
-└───utils
-        originFunction.js
-```
-
-### API Endpoints
-
-#### POST /room
-
-Creates a new room with the provided YouTube URL.
-
-Example:
+1. HTTP Request Logging
+   HTTP requests are logged using the morgan middleware with the "tiny" format. This format provides concise yet informative logs regarding incoming requests. The logs are written to a dedicated file, myLogFile.log.
 
 ```javascript
-axios.post("http://localhost:3400/room", { youtubeUrl });
+const morgan = require("morgan");
+const logFile = fs.createWriteStream("./logs/myLogFile.log", { flags: "a" });
+
+app.use(morgan("tiny", { stream: logFile }));
 ```
 
-#### GET /join
-
-Joins an existing room using the provided room ID.
-
-Example:
+2. Error Logging
+   Error logs are generated using morgan with the "common" format. This format includes detailed information about the request, making it valuable for debugging. Error logs are written to another dedicated file, myLogFileErrors.log. Only errors with a status code of 400 or higher are logged.
 
 ```javascript
-axios.get("http://localhost:3400/join", { params: { roomId } });
-```
+const logFileErrors = fs.createWriteStream("./logs/myLogFileErrors.log", { flags: "a" });
 
-#### GET /room-info/:id
-
-Retrieves information about a specific room.
-
-### WebSocket Events
-
--  joinRoom: Handles user joining a room.
--  VIDEO_LOAD: Handles loading a new video in a room.
--  VIDEO_PLAY: Handles playing a video in sync.
--  VIDEO_PAUSE: Handles pausing a video in sync.
--  VIDEO_BUFFER: Handles buffering events.
--  CREATE_MESSAGE: Handles creating a new chat message.
-
-### Database Schema
-
-The MongoDB schema includes a Room model with fields for room ID, current video details, users, and messages.
-
-```javascript
-const RoomSchema = new mongoose.Schema({
-	roomId: String,
-	currentVideo: {
-		videoUrl: String,
-		state: String,
-		currentTime: Number,
-	},
-	users: [
-		{
-			socketId: String,
-			displayName: String,
+app.use(
+	morgan("common", {
+		stream: logFileErrors,
+		skip: function (req, res) {
+			return res.statusCode < 400;
 		},
-	],
-	messages: [
-		{
-			from: String,
-			text: String,
-		},
-	],
-});
+	})
+);
 ```
 
-## Client
+## Error Handling
 
-The client is a React application that provides a user interface for creating/joining rooms, watching videos, and chatting.
-
-### Technologies Used
-
--  React
--  React Router
--  Axios
--  Socket.io-client
--  React Player
--  Modal
-
-```plaintext
-client
-├───src
-│       App.js
-│       index.js
-├───────components
-├───────pages
-├───────styles
-```
-
-### Major Components
-
-#### Home Component
-
-The landing page where users can create a new room or join an existing one.
-
--  Features:
-   -  Create a new room with display name and YouTube URL.
-   -  Join an existing room with display name and room ID.
-
-Example:
+A centralized error-handling middleware is implemented to manage errors throughout the application. This middleware catches errors, logs them, and sends a structured error response to the client.
 
 ```javascript
-const joinRoom = (roomId) => {
-	axios.get("http://localhost:3400/join", { params: { roomId } }).then((res) => {
-		navigate("room=/" + `${res.data}`);
+const ErrorHandler = (err, req, res, next) => {
+	const errStatus = err.statusCode || 500;
+	const errMsg = err.message || "Something went wrong";
+	res.status(errStatus).json({
+		success: false,
+		status: errStatus,
+		message: errMsg,
+		stack: process.env.NODE_ENV === "development" ? err.stack : {},
 	});
+};
+
+module.exports = ErrorHandler;
+```
+
+# Caching Strategies
+
+Caching is crucial for enhancing performance, and in this project, I use Redis as a caching mechanism to efficiently store and retrieve room data.
+
+## Redis Caching
+
+Redis is employed to cache room data effectively. Below are some examples showcasing caching strategies for different scenarios:
+
+Example 1: Caching Room Data
+Caching room data upon creation or update ensures that subsequent requests retrieve data from the cache, reducing database queries.
+
+```javascript
+const redisClient = require("../utils/redis");
+
+// Caching room data upon creation
+const createNewRoom = (youtubeUrl) => {
+	const roomId = uuidv4();
+	const room = new Room({ roomId, currentVideo: { videoUrl: youtubeUrl }, users: [] }).save();
+
+	// Cache room data for 1 hour
+	redisClient.setex(roomId, 3600, JSON.stringify(room));
+
+	return roomId;
 };
 ```
 
-#### Room Component
-
-The main interface for users within a room, including video playback, chat, and modals.
-
--  Features:
-   -  Real-time video synchronization.
-   -  Chat functionality for communication.
-   -  Modal dialogs for changing the video and inviting friends.
-
-Example:
+Example 2: Retrieving Room Data from Cache
+When fetching room information, first check if the data is available in the cache. If not, fetch it from the database and store it in the cache for future requests.
 
 ```javascript
-socket.on("VIDEO_PLAY", (data) => {
-	setPlaying(true);
+const redisClient = require("../utils/redis");
+
+router.get("/room-info/:id", async (req, res) => {
+	const roomId = req.params.id;
+
+	redisClient.get(roomId, async (err, cachedRoom) => {
+		if (cachedRoom) {
+			return res.json(JSON.parse(cachedRoom));
+		}
+
+		// If not in cache, fetch from the database
+		const room = await Room.findOne({ roomId });
+
+		if (room) {
+			// Cache room data for 1 hour
+			redisClient.setex(roomId, 3600, JSON.stringify(room));
+
+			return res.json(room);
+		} else {
+			return res.status(404).json({ error: "Room not found" });
+		}
+	});
 });
 ```
 
-#### Chat Component
+# Performance Optimization
 
-Handles real-time messaging between users within a room.
+The combination of logging, error handling, and caching contributes to the overall performance optimization of the application.
 
--  Features:
-   -  Displays participants.
-   -  Shows real-time messages.
+# Guide for Future Developers
 
-Example:
+## Logging and Error Handling
 
-```javascript
-<div className={styles.container}>
-	{messages &&
-		messages.map((message) => (
-			<Message user={message.from} key={message._id}>
-				{message.text}
-			</Message>
-		))}
-</div>
-```
+### HTTP Request Logging
 
-### Modals
+-  **Implementation:**
 
-#### Change Video Modal
+   -  Utilize the morgan middleware to log incoming HTTP requests.
+   -  Adjust the logging format based on preferences.
 
--  Opens when the "Change Video" button is clicked.
--  Allows users to input a new video URL.
--  Sends a VIDEO_LOAD socket event to synchronize the video with other users.
+-  **Logs Location:**
+   -  HTTP request logs are available in the myLogFile.log file.
 
-#### Invite Friends Modal
+### Error Logging
 
--  Opens when the "Invite Friends" button is clicked.
--  Displays the room ID and provides a "Copy to Clipboard" button.
+-  **Implementation:**
 
-## Application Screenshots
+   -  Errors with a status code of 400 or higher are logged using morgan. - Modify error logging configurations as needed.
 
-### Home Page
+-  **Logs Location:**
+   -  Error logs are stored in the myLogFileErrors.log file.
 
-![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/b5a0c25b-7690-4eca-a626-e8b877e40e35)
+### Centralized Error Handling
 
-### Room Page
+-  **Implementation:**
+   -  The ErrorHandler middleware centrally handles errors.
+   -  It provides a structured error response to clients.
 
-![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/72f360be-3a6a-49b5-ba76-27579e0c8ad4)
+## Caching
 
-### Chat
+### Redis Caching
 
-![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/7bc5bc33-0117-40c1-8607-72b3160a4547)
+-  **Implementation:**
 
-### Change Video Modal
+   -  Utilize Redis for caching frequently accessed room data.
+   -  Adjust TTL values based on data update frequency.
 
-![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/251afc15-aae3-4a11-b934-052657578d99)
-
-### Invite Friends Modal
-
-![image](https://github.com/danylo-gavrylovskyi/SyncV/assets/118884527/5096ce5f-3493-470f-8286-edd2939482ae)
-
+-  **Examples:**
+   -  Cache room data upon creation or update.
+   -  Retrieve room data from the cache if available; otherwise, fetch from the database.
