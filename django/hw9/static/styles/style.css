@@ -1,0 +1,25 @@
+body {
+	background-color: #adb4bf;
+	font-family: Arial, sans-serif;
+}
+
+#container-chat {
+	background-color: #f0f4fa;
+	border: 1px solid #f0f4fa;
+	border-radius: 5px;
+	padding: 2%;
+}
+
+#messages p {
+	border-radius: 5px;
+	padding: 1%;
+}
+
+#messages .sentMessage {
+	background-color: #164ba1;
+	color: white;
+}
+
+#messages .receivedMessage {
+	background-color: white;
+}
